@@ -1,0 +1,26 @@
+# Node.js
+node_modules/
+dist/
+.env
+
+# Backups
+backups/
+
+# Binários Pesados e Arquivos Zip
+*.jar
+*.zip
+
+# Minecraft Server (Ignorar arquivos voláteis e pesados)
+ServerFiles/world/
+ServerFiles/logs/
+ServerFiles/crash-reports/
+ServerFiles/libraries/
+ServerFiles/kubejs/
+ServerFiles/versions/
+
+# Playit
+ServerTools/playit/playit.exe
+
+# OS Logs / Caches
+.DS_Store
+Thumbs.db

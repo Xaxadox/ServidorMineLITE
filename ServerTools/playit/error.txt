@@ -1,0 +1,2 @@
+2026-08-15T19:38:57.525469Z  INFO playitd::daemon: Starting playitd socket_path=None secret_path=Some("C:\\Users\\Caio\\AppData\\Local\\playit_gg\\playit.toml") version=1.0.10
+playitd error: IPC error: Another instance is already running
