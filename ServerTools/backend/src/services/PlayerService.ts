@@ -5,6 +5,19 @@ import BaseService from './BaseService';
 import PlayerResponse from '../dto/PlayerResponse';
 import { ResourceNotFoundError } from '../errors/ServerError';
 
+/**
+ * Interface estrita para os meta-dados dos backups em .zip
+ */
+export interface BackupInfo {
+    filename: string;
+    sizeBytes: number;
+    createdAt: Date;
+}
+
+/**
+ * Servico de dados operacionais e de mapa (Players/World).
+ * Realiza as medicoes de backups na pasta `backups/` e gerencia a leitura do `playerdata`.
+ */
 class PlayerService extends BaseService {
     private worldPath: string;
     private playerdataDir: string;
@@ -17,10 +30,22 @@ class PlayerService extends BaseService {
         this.backupsDir = path.resolve(__dirname, "../../../backups");
     }
 
+    /**
+     * @returns "Ativo" se o mundo e cache existirem, senao "Aguardando Mundo"
+     */
     getStatus(): string {
         return fs.existsSync(this.playerdataDir) ? "Ativo" : "Aguardando Mundo";
     }
 
+    /**
+     * Recupera a lista de jogadores baseada nos arquivos `.dat` gerados no `playerdata`.
+     * 
+     * @todo Implementar leitura real de NBT com a biblioteca `prismarine-nbt`. 
+     * Atualmente, para manter a simplicidade e a performance em tempo de prototipagem, 
+     * a logica de parsing NBT binaria foi mockada e retorna dados estaticos seguros.
+     * 
+     * @returns Array de PlayerResponse contendo status emulados ou reais
+     */
     async getPlayers(): Promise<PlayerResponse[]> {
         if (!fs.existsSync(this.playerdataDir)) {
             return [];
@@ -29,8 +54,6 @@ class PlayerService extends BaseService {
         const files = fs.readdirSync(this.playerdataDir).filter(f => f.endsWith(".dat"));
         const players: PlayerResponse[] = [];
 
-        // Por simplicidade, usamos fake data igual antes, 
-        // ja que a logica de NBT foi mockada
         for (const file of files) {
             players.push(new PlayerResponse({
                 name: "Jogador " + file.substring(0, 4),
@@ -44,6 +67,11 @@ class PlayerService extends BaseService {
         return players;
     }
 
+    /**
+     * Aciona assincronamente a criacao de um backup compactado do mundo via PowerShell (Compress-Archive).
+     * @throws {ResourceNotFoundError} Caso o mundo ainda nao tenha sido gerado
+     * @returns O nome do arquivo .zip resultante
+     */
     async createBackup(): Promise<string> {
         this.log("Iniciando backup...");
         if (!fs.existsSync(this.worldPath)) {
@@ -62,7 +90,7 @@ class PlayerService extends BaseService {
                 `Compress-Archive -Path '${this.worldPath}' -DestinationPath '${dest}' -CompressionLevel Fastest`
             ]);
 
-            child.on("close", (code: any) => {
+            child.on("close", (code: number | null) => {
                 if (code === 0) {
                     this.log(`Backup criado com sucesso: ${filename}`);
                     resolve(filename);
@@ -73,7 +101,12 @@ class PlayerService extends BaseService {
         });
     }
 
-    listBackups(): any[] {
+    /**
+     * Varre a pasta de backups e levanta metadados (bytes e data).
+     * Ordena do backup mais recente (no topo) para o mais antigo.
+     * @returns Array validado por BackupInfo
+     */
+    listBackups(): BackupInfo[] {
         if (!fs.existsSync(this.backupsDir)) return [];
         const files = fs.readdirSync(this.backupsDir).filter(f => f.endsWith(".zip"));
         return files.map(f => {
@@ -83,10 +116,8 @@ class PlayerService extends BaseService {
                 sizeBytes: stat.size,
                 createdAt: stat.birthtime
             };
-        }).sort((a: any, b: any) => b.createdAt - a.createdAt);
+        }).sort((a: BackupInfo, b: BackupInfo) => b.createdAt.getTime() - a.createdAt.getTime());
     }
 }
 const playerService = new PlayerService();
 export default playerService;
-
-

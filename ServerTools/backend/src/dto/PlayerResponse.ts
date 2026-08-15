@@ -1,12 +1,39 @@
+export interface RawPlayerData {
+    name?: string;
+    uuid?: string;
+    health?: number;
+    pos?: (number | string)[];
+    dimension?: string;
+    playerGameType?: number;
+}
+
+/**
+ * DTO que padroniza os dados binarios do NBT do jogador em JSON tipado.
+ */
 export default class PlayerResponse {
+    /** Nickname formatado */
     name: string;
+    
+    /** UUID do cache */
     uuid: string;
+    
+    /** Pontos de vida arredondados (Max 20.0) */
     health: number;
+    
+    /** Coordenadas estruturadas de X Y Z formatadas (.toFixed) */
     position: { x: string | number, y: string | number, z: string | number };
+    
+    /** Dimensao extraida do NBT (ex: minecraft:overworld) */
     dimension: string;
+    
+    /** Modo de jogo legivel em string (0 = survival) */
     gameMode: string;
 
-    constructor(playerData: any) {
+    /**
+     * Parseia os dados sujos do `.dat` para um objeto limpo e seguro
+     * @param playerData Interface do dado cru levantado pelo disco
+     */
+    constructor(playerData: RawPlayerData) {
         this.name = playerData.name || "Desconhecido";
         this.uuid = playerData.uuid || "";
         this.health = playerData.health ? Math.ceil(playerData.health) : 20;
@@ -22,11 +49,15 @@ export default class PlayerResponse {
         }
         
         this.dimension = playerData.dimension || "minecraft:overworld";
-        this.gameMode = this._parseGameMode(playerData.playerGameType);
+        this.gameMode = this._parseGameMode(playerData.playerGameType ?? 0);
     }
 
-    private _parseGameMode(type: any): string {
-        const modes: any = {
+    /**
+     * Traduz inteiros NBT GameType em strings legiveis pelo Dashboard React.
+     * @param type Codigo numerico do modo de jogo
+     */
+    private _parseGameMode(type: number): string {
+        const modes: Record<number, string> = {
             0: "survival",
             1: "creative",
             2: "adventure",

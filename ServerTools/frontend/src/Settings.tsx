@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Save } from "lucide-react";
 
 const API = "http://localhost:3002/api";
@@ -6,22 +6,50 @@ const API = "http://localhost:3002/api";
 const DIFFICULTY_OPTIONS = ["peaceful", "easy", "normal", "hard"];
 const GAMEMODE_OPTIONS = ["survival", "creative", "adventure", "spectator"];
 
+interface Toast {
+  type: "success" | "error";
+  msg: string;
+}
+
+/**
+ * Componente dinamico para parser interativo do arquivo \`server.properties\`.
+ * Realiza modificacoes sincromas salvando diretamente no disco do Backend.
+ */
 export default function Settings() {
-  const [config, setConfig] = useState({});
-  const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState(null);
+  /** Objeto de estado retendo os pares K:V do backend */
+  const [config, setConfig] = useState<Record<string, string>>({});
+  
+  /** Trava contra salvamentos simultaneos */
+  const [saving, setSaving] = useState<boolean>(false);
+  
+  /** Feedback de UI pos-submissao */
+  const [toast, setToast] = useState<Toast | null>(null);
 
   useEffect(() => {
     fetch(`${API}/config`)
       .then((res) => res.json())
-      .then((data) => setConfig(data))
+      .then((data) => {
+        if (data && data.config) {
+          setConfig(data.config);
+        } else {
+          setConfig(data);
+        }
+      })
       .catch((err) => console.error(err));
   }, []);
 
-  const handleChange = (key, value) => {
+  /**
+   * Altera uma unica linha no state local (ainda nao submetida).
+   * @param key A chave nativa no server.properties
+   * @param value O novo valor (stringficado)
+   */
+  const handleChange = (key: string, value: string) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
   };
 
+  /**
+   * Descarrega o dicionario inteiro via POST contra a API de validacao nativa (ConfigService).
+   */
   const handleSave = async () => {
     setSaving(true);
     setToast(null);
@@ -45,8 +73,11 @@ export default function Settings() {
     setSaving(false);
   };
 
-  // Renderiza um select dropdown para campos com opcoes fixas
-  const renderSelect = (key, label, options) => (
+  /**
+   * Injeta um elemento <select> ja formatado com as opcoes do Enum do jogo.
+   * Ex: "Gamemode" restrito a ["survival", "creative", etc.]
+   */
+  const renderSelect = (key: string, label: string, options: string[]) => (
     <div className="form-group" key={key}>
       <label>{label}</label>
       <select
@@ -62,7 +93,10 @@ export default function Settings() {
     </div>
   );
 
-  const renderText = (key, label, type = "text") => (
+  /**
+   * Injeta um campo simples de texto cru ou numerico (Ex: MOTD, Simulacao Chunks).
+   */
+  const renderText = (key: string, label: string, type = "text") => (
     <div className="form-group" key={key}>
       <label>{label}</label>
       <input
@@ -74,7 +108,10 @@ export default function Settings() {
     </div>
   );
 
-  const renderBoolean = (key, label) => (
+  /**
+   * Injeta um Apple-style Toggle Switch limitando falsos-positivos a booleans pre-parseados.
+   */
+  const renderBoolean = (key: string, label: string) => (
     <div className="config-item" key={key}>
       <label>{label || key}</label>
       <label className="switch">

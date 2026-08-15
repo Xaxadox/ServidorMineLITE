@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Server, Settings as SettingsIcon, Users, Package } from 'lucide-react';
 import Dashboard from './Dashboard';
 import Settings from './Settings';
@@ -6,7 +6,7 @@ import Players from './Players';
 import ModsList from './ModsList';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
 
   return (
     <div className="app-container">

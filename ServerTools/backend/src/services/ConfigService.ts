@@ -4,7 +4,12 @@ import BaseService from './BaseService';
 import { InvalidConfigError, ResourceNotFoundError } from '../errors/ServerError';
 import ConfigResponse from '../dto/response/ConfigResponse';
 
+/**
+ * Servico responsavel por ler, parsear e escrever o arquivo `server.properties` do Minecraft.
+ * Mantem a formatacao original e injeta ou altera as configuracoes on-the-fly de forma sincrona.
+ */
 class ConfigService extends BaseService {
+    /** Caminho absoluto para o arquivo server.properties */
     private propsPath: string;
 
     constructor() {
@@ -12,11 +17,19 @@ class ConfigService extends BaseService {
         this.propsPath = path.resolve(__dirname, "../../../ServerFiles/server.properties");
     }
 
+    /**
+     * @returns "Arquivo carregado" ou "Nao encontrado"
+     */
     getStatus(): string {
         return fs.existsSync(this.propsPath) ? "Arquivo carregado" : "Nao encontrado";
     }
 
-    getConfig(): any {
+    /**
+     * Le o arquivo de propriedades e transforma em um DTO fortemente tipado.
+     * @throws {ResourceNotFoundError} Se o arquivo fisico nao existir na pasta ServerFiles
+     * @returns O modelo de resposta contendo o dicionario chave-valor do properties
+     */
+    getConfig(): ConfigResponse {
         if (!fs.existsSync(this.propsPath)) {
             throw new ResourceNotFoundError("server.properties nao encontrado.");
         }
@@ -24,7 +37,13 @@ class ConfigService extends BaseService {
         return new ConfigResponse(this.parseProperties(content));
     }
 
-    saveConfig(updates: any): void {
+    /**
+     * Valida e aplica um objeto de alteracoes no arquivo de propriedades fisico.
+     * @param updates - Um dicionario (Record<string, string>) com as chaves a serem atualizadas
+     * @throws {InvalidConfigError} Se o valor de uma chave controlada (ex: difficulty) for ilegal
+     * @throws {ResourceNotFoundError} Se o arquivo fisico nao existir
+     */
+    saveConfig(updates: Record<string, string>): void {
         this.validate(updates);
         if (!fs.existsSync(this.propsPath)) {
             throw new ResourceNotFoundError("server.properties nao encontrado.");
@@ -36,8 +55,14 @@ class ConfigService extends BaseService {
         this.log("server.properties atualizado com sucesso!");
     }
 
-    private parseProperties(content: string): any {
-        const config: any = {};
+    /**
+     * Converte o texto plano (Properties-format) para um dicionario JavaScript,
+     * ignorando comentarios e linhas em branco.
+     * @param content - O texto cru do server.properties
+     * @returns Dicionario mapeado
+     */
+    private parseProperties(content: string): Record<string, string> {
+        const config: Record<string, string> = {};
         content.split("\n").forEach(line => {
             if (line.trim() && !line.startsWith("#")) {
                 const parts = line.split("=");
@@ -51,7 +76,13 @@ class ConfigService extends BaseService {
         return config;
     }
 
-    private updateProperties(content: string, updates: any): string {
+    /**
+     * Sobrescreve linhas pontuais mantendo os comentarios originais intactos.
+     * @param content - O texto cru do server.properties
+     * @param updates - Dicionario com as edicoes
+     * @returns O novo texto formato plain string pronto para escrita
+     */
+    private updateProperties(content: string, updates: Record<string, string>): string {
         let lines = content.split("\n");
         for (const key in updates) {
             let found = false;
@@ -67,8 +98,12 @@ class ConfigService extends BaseService {
         return lines.join("\n");
     }
 
-    private validate(updates: any): void {
-        const VALID_VALUES: any = {
+    /**
+     * Regras de dominio para impedir injeções problematicas nos arquivos de config do Java.
+     * @param updates - Dicionario de propriedades recebidas da API
+     */
+    private validate(updates: Record<string, string>): void {
+        const VALID_VALUES: Record<string, string[]> = {
             difficulty: ["peaceful", "easy", "normal", "hard"],
             gamemode: ["survival", "creative", "adventure", "spectator"]
         };
@@ -81,5 +116,3 @@ class ConfigService extends BaseService {
 }
 const configService = new ConfigService();
 export default configService;
-
-
