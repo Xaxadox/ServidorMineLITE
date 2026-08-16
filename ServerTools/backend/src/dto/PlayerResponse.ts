@@ -5,6 +5,7 @@ export interface RawPlayerData {
     pos?: (number | string)[];
     dimension?: string;
     playerGameType?: number;
+    inventory?: { id: string; count: number; slot: number }[];
 }
 
 /**
@@ -29,6 +30,9 @@ export default class PlayerResponse {
     /** Modo de jogo legivel em string (0 = survival) */
     gameMode: string;
 
+    /** Lista de itens no inventario */
+    inventory: { id: string; count: number; slot: number }[];
+
     /**
      * Parseia os dados sujos do `.dat` para um objeto limpo e seguro
      * @param playerData Interface do dado cru levantado pelo disco
@@ -50,6 +54,7 @@ export default class PlayerResponse {
         
         this.dimension = playerData.dimension || "minecraft:overworld";
         this.gameMode = this._parseGameMode(playerData.playerGameType ?? 0);
+        this.inventory = playerData.inventory || [];
     }
 
     /**

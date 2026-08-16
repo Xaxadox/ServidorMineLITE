@@ -9,6 +9,12 @@ interface Position {
   z: number | string;
 }
 
+interface InventoryItem {
+  id: string;
+  count: number;
+  slot: number;
+}
+
 interface Player {
   uuid: string;
   name: string;
@@ -16,6 +22,7 @@ interface Player {
   position: Position;
   dimension: string;
   gameMode: string;
+  inventory: InventoryItem[];
 }
 
 export default function Players() {
@@ -43,7 +50,8 @@ export default function Players() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ playerName, action })
       });
-      // Acao enviada!
+      // Opcional: Atualizar a lista depois de um tempinho
+      setTimeout(fetchPlayers, 1500);
     } catch (err) {
       console.error(err);
     }
@@ -97,6 +105,10 @@ export default function Players() {
                   <Map size={16} color="#8b5cf6" />
                   <span style={{ fontSize: "0.9rem" }}>Dimensao: <strong>{p.dimension.split(":")[1] || p.dimension}</strong></span>
                 </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <MapPin size={16} color="#10b981" />
+                  <span style={{ fontSize: "0.9rem" }}>XYZ: <strong>{p.position.x}, {p.position.y}, {p.position.z}</strong></span>
+                </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
@@ -145,6 +157,46 @@ export default function Players() {
                 >
                   <Trash2 size={16} /> Limpar Inventario
                 </button>
+              </div>
+
+              {/* Inventario */}
+              <div style={{ marginTop: "1rem" }}>
+                <h4 style={{ color: "var(--text-main)", marginBottom: "0.5rem", fontSize: "0.95rem" }}>Inventario</h4>
+                <div className="inventory-grid">
+                  {Array.from({ length: 36 }).map((_, i) => {
+                    // Slots do inventario principal do Minecraft vao de 0 a 35 (hotbar + bags)
+                    // Slot 0-8: Hotbar
+                    // Slot 9-35: Inventario
+                    
+                    // No formato NBT, os slots podem estar mapeados diferentemente, 
+                    // mas geralmente de 0 a 35 representam a bolsa.
+                    const item = p.inventory?.find(inv => inv.slot === i);
+                    return (
+                      <div key={i} className="inventory-slot" title={item ? `${item.id} x${item.count}` : "Vazio"}>
+                        {item && (
+                          <>
+                            <span style={{ 
+                              fontSize: "0.55rem", 
+                              color: "var(--text-muted)",
+                              textOverflow: "ellipsis",
+                              overflow: "hidden",
+                              whiteSpace: "nowrap",
+                              width: "100%",
+                              textAlign: "center",
+                              padding: "2px",
+                              lineHeight: "1.1"
+                            }}>
+                              {item.id.replace("minecraft:", "")}
+                            </span>
+                            {item.count > 1 && (
+                              <div className="item-count">{item.count}</div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
             </div>
