@@ -1,5 +1,7 @@
 # ATM Lite & ServerTools 🚀
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 Um projeto focado em resolver os problemas extremos de otimizacao e vazamento de memoria da serie oficial *All The Mods*. O **ATM Lite** reduz os ~450 mods originais para um **nucleo duro de ~35 mods essenciais**, cortando a exigencia de memoria RAM em 90%. 
 
 Junto do Modpack, o projeto embarca o **ServerTools**, um painel de administracao Web Fullstack (TypeScript, React, Node.js) construido com Clean Architecture para facilitar a vida do host.
@@ -87,3 +89,11 @@ Se perguntar sobre qualidade, escolha **"Low"** para melhor desempenho.
 2. Depois que o jogo abrir, va em **Multiplayer > Adicionar Servidor**.
 3. Em Endereco do Servidor, coloquem o IP local/Ngrok.
 4. Entrem e divirtam-se!
+
+---
+
+## 📜 Licenca
+
+Este projeto esta licenciado sob a **GNU General Public License v3.0 (GPLv3)**.
+Isso significa que voce tem a liberdade de usar, modificar e distribuir este projeto, desde que **qualquer software derivado tambem seja open-source e distribuido sob a mesma licenca**.
+Para mais detalhes, veja o arquivo [LICENSE](./LICENSE).
