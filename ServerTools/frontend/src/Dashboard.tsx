@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Play, Square, RotateCw, Server, Zap, HardDrive, Download } from "lucide-react";
+import { Play, Square, RotateCw, Server, Zap, HardDrive, Download, Globe, Copy } from "lucide-react";
 
 const API = "http://localhost:3002/api";
 
@@ -32,6 +32,8 @@ export default function Dashboard() {
   
   /** Array tipado de meta-dados levantados do historico de Zips em /backups */
   const [backups, setBackups] = useState<BackupInfo[]>([]);
+  const [playitStatus, setPlayitStatus] = useState<string>('offline');
+  const [playitIp, setPlayitIp] = useState<string>('Carregando...');
 
   /** Realiza GET contra /status. Ignora bloqueios pois roda em background (interval) */
   const fetchStatus = async () => {
@@ -41,6 +43,14 @@ export default function Dashboard() {
       setStatus(data.status);
     } catch (err) {
       console.error(err);
+    }
+    try {
+      const pRes = await fetch(`${API}/playit/status`);
+      const pData = await pRes.json();
+      setPlayitStatus(pData.status);
+      setPlayitIp(pData.ip);
+    } catch (err) {
+      console.error("Playit fetch err", err);
     }
   };
 
@@ -126,6 +136,47 @@ export default function Dashboard() {
       </div>
 
       <div className="grid-cards" style={{ marginTop: "2rem" }}>
+        {/* Card do Playit */}
+        <div className="card glass">
+          <div className="card-header">
+            <div className="card-title">
+              <Globe size={20} />
+              Túnel Público (Playit.gg)
+            </div>
+            <span className={`status-badge ${playitStatus === 'online' ? 'running' : 'stopped'}`}>
+              {playitStatus === 'online' ? 'Online' : 'Offline'}
+            </span>
+          </div>
+
+          <div style={{ marginTop: "1rem" }}>
+            <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: "0.5rem" }}>
+              IP para os jogadores conectarem:
+            </p>
+            <div style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "space-between",
+                background: "rgba(0,0,0,0.2)", 
+                padding: "0.75rem", 
+                borderRadius: "8px",
+                border: "1px solid rgba(255,255,255,0.05)"
+              }}>
+              <span style={{ fontFamily: "monospace", color: playitStatus === 'online' ? "var(--accent)" : "var(--text-muted)", fontSize: "1.1rem" }}>
+                {playitIp}
+              </span>
+              <button 
+                className="btn btn-secondary" 
+                style={{ padding: "0.4rem" }}
+                onClick={() => navigator.clipboard.writeText(playitIp)}
+                title="Copiar IP"
+                disabled={playitStatus !== 'online'}
+              >
+                <Copy size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Card de controle */}
         <div className="card glass">
           <div className="card-header">
@@ -212,3 +263,4 @@ export default function Dashboard() {
     </div>
   );
 }
+

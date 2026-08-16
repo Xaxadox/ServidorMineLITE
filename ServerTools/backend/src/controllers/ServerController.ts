@@ -3,6 +3,7 @@ const router = express.Router();
 import processService from '../services/ProcessService';
 import configService from '../services/ConfigService';
 import playerService from '../services/PlayerService';
+import playitService from '../services/PlayitService';
 import StatusResponse from '../dto/response/StatusResponse';
 import { ServerError } from '../errors/ServerError';
 
@@ -150,4 +151,19 @@ router.get("/backups", (req: Request, res: Response) => {
     }
 });
 
+/**
+ * [GET] /api/playit/status
+ * Retorna o status do tunel global Playit.gg
+ */
+router.get("/playit/status", async (req: Request, res: Response) => {
+    try {
+        const status = await playitService.checkTunnel();
+        res.json(status);
+    } catch (err) {
+        handleError(err, res);
+    }
+});
+
 export default router;
+
+
