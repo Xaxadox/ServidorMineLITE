@@ -39,12 +39,7 @@ class PlayerService extends BaseService {
 
     /**
      * Recupera a lista de jogadores baseada nos arquivos `.dat` gerados no `playerdata`.
-     * 
-     * @todo Implementar leitura real de NBT com a biblioteca `prismarine-nbt`. 
-     * Atualmente, para manter a simplicidade e a performance em tempo de prototipagem, 
-     * a logica de parsing NBT binaria foi mockada e retorna dados estaticos seguros.
-     * 
-     * @returns Array de PlayerResponse contendo status emulados ou reais
+     * Le o `usercache.json` para mapear os UUIDs aos nomes reais.
      */
     async getPlayers(): Promise<PlayerResponse[]> {
         if (!fs.existsSync(this.playerdataDir)) {
@@ -53,12 +48,26 @@ class PlayerService extends BaseService {
 
         const files = fs.readdirSync(this.playerdataDir).filter(f => f.endsWith(".dat"));
         const players: PlayerResponse[] = [];
+        
+        let userCache: any[] = [];
+        const cachePath = path.resolve(__dirname, "../../../../ServerFiles/usercache.json");
+        if (fs.existsSync(cachePath)) {
+            try {
+                userCache = JSON.parse(fs.readFileSync(cachePath, "utf-8"));
+            } catch (e) {
+                this.log("Erro ao ler usercache.json");
+            }
+        }
 
         for (const file of files) {
+            const uuid = file.replace(".dat", "");
+            const cachedUser = userCache.find((u: any) => u.uuid === uuid);
+            const name = cachedUser ? cachedUser.name : "Jogador " + uuid.substring(0, 4);
+
             players.push(new PlayerResponse({
-                name: "Jogador " + file.substring(0, 4),
-                uuid: file.replace(".dat", ""),
-                health: 20,
+                name: name,
+                uuid: uuid,
+                health: 20, // Continua mockado por enquanto, pois ler o .dat requer NBT parse.
                 pos: [0, 64, 0],
                 dimension: "minecraft:overworld",
                 playerGameType: 0
@@ -121,4 +130,5 @@ class PlayerService extends BaseService {
 }
 const playerService = new PlayerService();
 export default playerService;
+
 

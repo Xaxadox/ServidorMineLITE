@@ -111,7 +111,23 @@ class ProcessService extends BaseService {
             }, 1000);
         });
     }
+
+    /**
+     * Injeta um comando diretamente no console do servidor em execucao.
+     * @param command Comando (sem a barra inicial), ex: "heal Xaxadox"
+     */
+    sendCommand(command: string): void {
+        if (!this._serverProcess || this._serverStatus !== "running") {
+            this.log("Nao e possivel enviar comandos. O servidor esta offline.");
+            return;
+        }
+        this.log("Enviando comando: " + command);
+        this._serverProcess.stdin?.write(command + "\n");
+    }
+
 }
 const processService = new ProcessService();
 export default processService;
+
+
 

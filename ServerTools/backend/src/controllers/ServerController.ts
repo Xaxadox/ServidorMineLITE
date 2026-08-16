@@ -123,6 +123,45 @@ router.get("/players", async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * [POST] /api/players/action
+ * Executa comandos nativos no console para gerenciar jogadores (Estilo Aternos).
+ */
+router.post("/players/action", (req: Request, res: Response) => {
+    try {
+        const { playerName, action } = req.body;
+        if (!playerName || !action) {
+            return res.status(400).json({ error: "playerName e action sao obrigatorios." });
+        }
+
+        let cmd = "";
+        switch (action) {
+            case "heal":
+                cmd = `effect give ${playerName} instant_health 1 255`;
+                break;
+            case "feed":
+                cmd = `effect give ${playerName} saturation 1 255`;
+                break;
+            case "starve":
+                cmd = `effect give ${playerName} hunger 30 255`;
+                break;
+            case "kill":
+                cmd = `kill ${playerName}`;
+                break;
+            case "clear":
+                cmd = `clear ${playerName}`;
+                break;
+            default:
+                return res.status(400).json({ error: "Acao invalida." });
+        }
+
+        processService.sendCommand(cmd);
+        res.json({ success: true, message: `Acao '${action}' executada para ${playerName}.` });
+    } catch (err) {
+        handleError(err, res);
+    }
+});
+
 // --- BACKUP [US05 - Sprint 2] ---
 
 /**
@@ -165,5 +204,6 @@ router.get("/playit/status", async (req: Request, res: Response) => {
 });
 
 export default router;
+
 
 

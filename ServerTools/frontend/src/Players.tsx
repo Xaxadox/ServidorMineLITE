@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Users, User, Heart, MapPin, Map, RefreshCw } from "lucide-react";
+import { Users, User, Heart, MapPin, Map, RefreshCw, Drumstick, Skull, Trash2, BatteryWarning } from "lucide-react";
 
 const API = "http://localhost:3002/api";
 
@@ -9,9 +9,6 @@ interface Position {
   z: number | string;
 }
 
-/**
- * Tipagem do espelho de PlayerResponse do backend
- */
 interface Player {
   uuid: string;
   name: string;
@@ -21,15 +18,11 @@ interface Player {
   gameMode: string;
 }
 
-/**
- * Componente que renderiza a grade visual dos jogadores.
- * Alimenta-se do backend via parseamento de arquivo .dat (NBT).
- */
 export default function Players() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  /** Realiza Request Manual contra a API de lista NBT */
   const fetchPlayers = async () => {
     setLoading(true);
     try {
@@ -42,7 +35,21 @@ export default function Players() {
     setLoading(false);
   };
 
-  /** Render Mount (Once) */
+  const handleAction = async (playerName: string, action: string) => {
+    setActionLoading(`${playerName}-${action}`);
+    try {
+      await fetch(`${API}/players/action`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerName, action })
+      });
+      // Acao enviada!
+    } catch (err) {
+      console.error(err);
+    }
+    setActionLoading(null);
+  };
+
   useEffect(() => {
     fetchPlayers();
   }, []);
@@ -52,7 +59,7 @@ export default function Players() {
       <div className="header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <h1>Jogadores</h1>
-          <p>Dados de NBT extraidos do servidor em tempo real</p>
+          <p>Gerencie jogadores online (Cure, Alimente, Esfomeie, ou Mate)</p>
         </div>
         <button className="btn btn-primary" onClick={fetchPlayers} disabled={loading}>
           <RefreshCw size={18} className={loading ? "spin" : ""} /> Atualizar
@@ -63,7 +70,7 @@ export default function Players() {
         {players.length === 0 && !loading ? (
           <div className="card glass" style={{ gridColumn: "1 / -1", textAlign: "center", padding: "3rem" }}>
             <Users size={48} color="rgba(255,255,255,0.2)" style={{ margin: "0 auto 1rem" }} />
-            <h3 style={{ color: "var(--text-muted)" }}>Nenhum jogador online ou registrado no cache</h3>
+            <h3 style={{ color: "var(--text-muted)" }}>Nenhum jogador registrado no cache</h3>
           </div>
         ) : (
           players.map((p) => (
@@ -77,24 +84,69 @@ export default function Players() {
                   {p.gameMode}
                 </span>
               </div>
-              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "1rem" }}>
+              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.5rem" }}>
                 UUID: {p.uuid}
               </div>
 
-              <div className="player-stats">
-                <div className="stat">
+              <div className="player-stats" style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "1rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <Heart size={16} color="#ef4444" />
-                  <span>HP: <strong>{p.health} / 20</strong></span>
+                  <span style={{ fontSize: "0.9rem" }}>HP: <strong>{p.health} / 20</strong></span>
                 </div>
-                <div className="stat">
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <Map size={16} color="#8b5cf6" />
-                  <span>Dimensao: <strong>{p.dimension.split(":")[1] || p.dimension}</strong></span>
-                </div>
-                <div className="stat">
-                  <MapPin size={16} color="#10b981" />
-                  <span>XYZ: <strong>{p.position.x}, {p.position.y}, {p.position.z}</strong></span>
+                  <span style={{ fontSize: "0.9rem" }}>Dimensao: <strong>{p.dimension.split(":")[1] || p.dimension}</strong></span>
                 </div>
               </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
+                <button 
+                  className="btn btn-success" 
+                  style={{ padding: "0.5rem", fontSize: "0.9rem" }}
+                  onClick={() => handleAction(p.name, "heal")}
+                  disabled={actionLoading !== null}
+                  title="Curar Vida"
+                >
+                  <Heart size={16} /> Curar
+                </button>
+                <button 
+                  className="btn btn-warning" 
+                  style={{ padding: "0.5rem", fontSize: "0.9rem" }}
+                  onClick={() => handleAction(p.name, "feed")}
+                  disabled={actionLoading !== null}
+                  title="Alimentar"
+                >
+                  <Drumstick size={16} /> Alimentar
+                </button>
+                <button 
+                  className="btn btn-secondary" 
+                  style={{ padding: "0.5rem", fontSize: "0.9rem", background: "var(--card-border)", color: "var(--text-main)" }}
+                  onClick={() => handleAction(p.name, "starve")}
+                  disabled={actionLoading !== null}
+                  title="Tirar Fome"
+                >
+                  <BatteryWarning size={16} /> Esfomear
+                </button>
+                <button 
+                  className="btn btn-danger" 
+                  style={{ padding: "0.5rem", fontSize: "0.9rem" }}
+                  onClick={() => handleAction(p.name, "kill")}
+                  disabled={actionLoading !== null}
+                  title="Matar"
+                >
+                  <Skull size={16} /> Matar
+                </button>
+                <button 
+                  className="btn btn-primary" 
+                  style={{ padding: "0.5rem", fontSize: "0.9rem", gridColumn: "1 / -1" }}
+                  onClick={() => handleAction(p.name, "clear")}
+                  disabled={actionLoading !== null}
+                  title="Limpar Inventario"
+                >
+                  <Trash2 size={16} /> Limpar Inventario
+                </button>
+              </div>
+
             </div>
           ))
         )}
