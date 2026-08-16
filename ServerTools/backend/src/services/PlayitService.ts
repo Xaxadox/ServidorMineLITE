@@ -27,7 +27,7 @@ class PlayitService extends BaseService {
             if (stdout.includes("playitd")) {
                 return { status: "online", ip: this.staticIp };
             }
-            return { status: "offline", ip: "Túnel Desligado" };
+            return { status: "offline", ip: "Tunel Desligado" };
         } catch (error) {
             this.logError(String(error));
             return { status: "offline", ip: "Erro de Consulta" };
@@ -37,3 +37,4 @@ class PlayitService extends BaseService {
 
 const playitService = new PlayitService();
 export default playitService;
+
