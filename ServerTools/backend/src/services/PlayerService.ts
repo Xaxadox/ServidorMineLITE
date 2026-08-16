@@ -25,9 +25,9 @@ class PlayerService extends BaseService {
 
     constructor() {
         super("PlayerService");
-        this.worldPath = path.resolve(__dirname, "../../../ServerFiles/world");
+        this.worldPath = path.resolve(__dirname, "../../../../ServerFiles/world");
         this.playerdataDir = path.join(this.worldPath, "playerdata");
-        this.backupsDir = path.resolve(__dirname, "../../../backups");
+        this.backupsDir = path.resolve(__dirname, "../../../../backups");
     }
 
     /**
@@ -121,3 +121,4 @@ class PlayerService extends BaseService {
 }
 const playerService = new PlayerService();
 export default playerService;
+

@@ -39,7 +39,7 @@ class ProcessService extends BaseService {
         this.log("Iniciando servidor...");
         this._serverStatus = "starting";
 
-        const serverDir = path.resolve(__dirname, "../../../ServerFiles");
+        const serverDir = path.resolve(__dirname, "../../../../ServerFiles");
         const batPath = path.join(serverDir, "startserver.bat");
 
         this._serverProcess = spawn("cmd.exe", ["/c", batPath], { cwd: serverDir });
@@ -114,3 +114,4 @@ class ProcessService extends BaseService {
 }
 const processService = new ProcessService();
 export default processService;
+

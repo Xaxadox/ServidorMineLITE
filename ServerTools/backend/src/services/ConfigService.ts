@@ -14,7 +14,7 @@ class ConfigService extends BaseService {
 
     constructor() {
         super("ConfigService");
-        this.propsPath = path.resolve(__dirname, "../../../ServerFiles/server.properties");
+        this.propsPath = path.resolve(__dirname, "../../../../ServerFiles/server.properties");
     }
 
     /**
@@ -116,3 +116,4 @@ class ConfigService extends BaseService {
 }
 const configService = new ConfigService();
 export default configService;
+
