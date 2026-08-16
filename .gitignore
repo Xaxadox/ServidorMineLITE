@@ -24,3 +24,5 @@ ServerTools/playit/playit.exe
 # OS Logs / Caches
 .DS_Store
 Thumbs.db
+
+.agents/
