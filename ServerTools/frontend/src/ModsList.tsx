@@ -123,10 +123,10 @@ export default function ModsList() {
                       <a href={mod.link} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '1.05rem', textDecoration: 'none' }}>
                         {mod.name} ?
                       </a>
-                      <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '99px', textTransform: 'uppercase', background: mod.required ? '#d1fae5' : '#fef3c7', color: mod.required ? '#10b981' : '#f59e0b' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '99px', textTransform: 'uppercase', background: mod.required ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)', color: mod.required ? '#10b981' : '#f59e0b' }}>
                         {mod.required ? 'Essencial' : 'Opcional'}
                       </span>
-                      <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '99px', background: '#f1f5f9', color: 'var(--text-muted)', fontWeight: 600 }}>
+                      <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '99px', background: 'var(--card-border)', color: 'var(--text-muted)', fontWeight: 600 }}>
                         {mod.where}
                       </span>
                     </div>
@@ -141,3 +141,4 @@ export default function ModsList() {
     </div>
   );
 }
+

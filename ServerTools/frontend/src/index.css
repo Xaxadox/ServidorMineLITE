@@ -4,7 +4,7 @@
   --bg-color: #0f172a;
   --card-bg: #1e293b;
   --card-border: #334155;
-  --text-main: #1e293b;
+  --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --danger: #ef4444;
   --danger-hover: #dc2626;
@@ -437,4 +437,5 @@ input:checked + .slider:before {
   color: var(--text-main);
   border-left: 4px solid #10b981;
 }
+
 
