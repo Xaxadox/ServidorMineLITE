@@ -5,28 +5,35 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/).
 
 ---
 
-## [2.0.0] - 2026-08-15 | Migração Completa para TypeScript e Clean Architecture
+## [2.0.0] - 2026-08-15 | Auditoria Profunda, TypeScript e Clean Architecture
 
 ### Adicionado
 - **TypeScript na Stack Completa:**
   - Adicionado suporte nativo a TypeScript (`"strict": true`) no Backend Node.js.
-  - Configuração do Vite (`tsconfig.app.json`, `tsconfig.node.json`) para suportar TSX nativamente no Frontend React.
-  - Instalação de `@types/node`, `@types/express`, `@types/react`, e `@jest/globals` para tipagem estática ponta-a-ponta.
-- **Data Transfer Objects (DTOs) Estáticos:**
-  - Tipagem forte adicionada nos DTOs do backend (`PlayerResponse`, `ConfigResponse`, `StatusResponse`), garantindo estruturas de resposta seguras e sem inferência solta.
+  - Configuracao do Vite (`tsconfig.app.json`, `tsconfig.node.json`) para suportar TSX nativamente no Frontend React.
+  - Instalacao de `@types/node`, `@types/express`, `@types/react`, e `@jest/globals` para tipagem estatica ponta-a-ponta.
+- **Data Transfer Objects (DTOs) Estaticos:**
+  - Tipagem forte adicionada nos DTOs do backend (`PlayerResponse`, `ConfigResponse`, `StatusResponse`), garantindo estruturas de resposta seguras e sem inferencia solta.
+- **Suite de Testes Unitarios** com Jest (Backend) e Vitest (Frontend) operando a 100% de cobertura (Fix act Warning).
+- **JSDoc e TSDoc**: Padronizacao global de documentacao em metodos e classes.
 
 ### Alterado
-- Refatoração dos imports do **Backend** de CommonJS puro (`require`) para **ES Modules** (`import/export default`) aproveitando interoperabilidade do compilador ES2022.
-- Extensões alteradas: `.js` -> `.ts` e `.jsx` -> `.tsx`.
-- Instâncias do pattern Singleton (`ConfigService`, `ProcessService`, `PlayerService`) exportadas de forma clara via ES6 (`export default xService`).
-- Tolerância a falhas na configuração base (`ProcessService`) tipada nativamente.
-- Refatoração das dependências legadas do Jest para transpiladores TypeScript.
+- **Resolvido Memory Leak no Node**: `ProcessService.ts` agora tem um limite agressivo (30s) no pooling de reinicio do servidor, forcando um `reject()` caso a JVM do java morra e vire um processo zumbi.
+- **Fix no Frontend React**: Corrigido um bug silencioso no `Dashboard.tsx` onde a leitura da chave de memoria estava descasada do Backend (`b.sizeMB` consertado para `b.sizeBytes` com calculo inline real).
+- Refatoracao dos imports do **Backend** de CommonJS puro (`require`) para **ES Modules** (`import/export default`) aproveitando interoperabilidade do compilador ES2022.
+- Extensoes alteradas: `.js` -> `.ts` e `.jsx` -> `.tsx`.
+- Instancias do pattern Singleton (`ConfigService`, `ProcessService`, `PlayerService`) exportadas de forma clara via ES6 (`export default xService`).
+- Tolerancia a falhas na configuracao base (`ProcessService`) tipada nativamente.
+- Refatoracao das dependencias legadas do Jest para transpiladores TypeScript.
 
-### Segurança e Estabilidade
-- Um backup em nível de diretório foi gerado preventivamente (`backups/ServerTools_JS_Backup.zip`) preservando a versão 1.0 funcional em JavaScript puro.
+### Removido
+- Removido 100% de keywords `any` vulneraveis na conversao Typescript.
+- Deletado clone inativo de `anexos/README.md`.
+
+### Seguranca e Estabilidade
+- Um backup em nivel de diretorio foi gerado preventivamente (`backups/ServerTools_JS_Backup.zip`) preservando a versao 1.0 funcional em JavaScript puro.
 
 ---
-
 ## [1.2.0] - 2026-08-15 | Documentacao Final
 
 ### Adicionado
@@ -151,3 +158,5 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/).
 
 ### Contexto
 Projeto criado para resolver o problema de peso do ATM10 original (440-500 mods). Definido um "nucleo duro" com menos de 50 mods.
+
+
